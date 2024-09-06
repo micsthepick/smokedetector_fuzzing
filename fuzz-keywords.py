@@ -11,7 +11,7 @@ with atheris.instrument_imports():
 
 load_blacklists()
 
-KWDS = GlobalVars.bad_keywords
+KWDS = GlobalVars.watched_keywords
 
 REGEXES = [regex.compile(keyword_bookend_regex_text(kw)) for kw in KWDS]
 
