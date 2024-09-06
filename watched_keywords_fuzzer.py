@@ -1,10 +1,12 @@
 #!/usr/bin/python
 import atheris
 
+from globalvars import GlobalVars
+from blacklists import load_blacklists
+
+from findspam import city_list, regex_compile_no_cache
+
 with atheris.instrument_imports():
-    from globalvars import GlobalVars
-    from blacklists import load_blacklists
-    from helpers import keyword_bookend_regex_text
     import time
     import regex
     import sys
@@ -13,7 +15,7 @@ load_blacklists()
 
 KWDS = GlobalVars.watched_keywords.keys()
 
-REGEXES = [regex.compile(keyword_bookend_regex_text(kw)) for kw in KWDS]
+REGEXES = [regex_compile_no_cache(kw, regex.UNICODE, city=city_list, ignore_unused=True) for kw in KWDS]
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):

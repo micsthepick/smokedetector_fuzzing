@@ -1,1 +1,1 @@
-fuzz-keywords.py -max_len=99999 -jobs=30
+./watched_keywords_fuzzer.py -max_len=99999 -jobs=30
