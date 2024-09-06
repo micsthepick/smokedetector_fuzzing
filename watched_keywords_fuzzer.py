@@ -19,8 +19,8 @@ print(f'loaded {len(KWDS)} KWDS')
 
 REGEXES = [regex_compile_no_cache(kw, regex.UNICODE, city=city_list, ignore_unused=True) for kw in KWDS if len(set('<>[]()') & set(kw))]
 
-
 print(f'rejected {len(KWDS)-len(REGEXES)} KWDS (too simple) and left with {len(REGEXES)}')
+
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
