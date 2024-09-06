@@ -118,3 +118,6 @@ setp.sh
 # Extraneous files
 * shortcut *
 * link *
+
+
+fuzz*.log
