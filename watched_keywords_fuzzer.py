@@ -32,10 +32,10 @@ def fuzz_me(index, string):
     if match is not None:
         max_num = max(match.stack_sizes)
         if max_num >= (1 << 10):
-            for i in range(10, 14):
-               if (1<<i):
+            for i in range(10, 17):
+               if ((1<<i)&max_num):
                     print(i)
-        if max_num > 1 << 14:
+        if max_num > (1 << 17):
             raise ValueError(repr(f'BOOM! [[[{match.string}]]] !BOOM'))
 
 @atheris.instrument_func
