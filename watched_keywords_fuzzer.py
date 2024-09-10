@@ -1,15 +1,19 @@
 #!/usr/bin/python
 import atheris
 
+## hook on regex ops
+#atheris.enabled_hooks.add("RegEx")
+
+with atheris.instrument_imports():
+    import time
+    import regex as re
+    import sys
+
 from globalvars import GlobalVars
 from blacklists import load_blacklists
 
 from findspam import city_list, regex_compile_no_cache
 
-with atheris.instrument_imports():
-    import time
-    import regex
-    import sys
 
 load_blacklists()
 
@@ -17,61 +21,55 @@ KWDS = GlobalVars.watched_keywords.keys()
 
 print(f'loaded {len(KWDS)} KWDS')
 
-REGEXES = [regex_compile_no_cache(kw, regex.UNICODE, city=city_list, ignore_unused=True) for kw in KWDS if len(set('<>[]()') & set(kw))]
+REGEXES = [regex_compile_no_cache(kw, re.UNICODE, city=city_list, ignore_unused=True) for kw in KWDS if len(set(kw) - set('qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM./\\'))]
 
 print(f'rejected {len(KWDS)-len(REGEXES)} KWDS (too simple) and left with {len(REGEXES)}')
 
 
+maxes = [0,0,0]
+
+@atheris.instrument_func
+def fuzz_me(index, string):
+    match = REGEXES[index].search(string)
+
+    if match is not None:
+        if max(match.stack_sizes) > 1000:
+            pass
+        if max(match.stack_sizes) > 10000:
+            pass
+        if max(match.stack_sizes) > 100000:
+            raise RuntimeError(repr(f'BOOM: [[[{match.string}]]]'))
+        if match.stack_sizes[0] > maxes[0]:
+            maxes[0] = match.stack_sizes[0]
+            print(f'NEW GROUND! {match.stack_sizes[0]}@0')
+        if match.stack_sizes[1] > maxes[1]:
+            maxes[1] = match.stack_sizes[1]
+            print(f'NEW GROUND! {match.stack_sizes[1]}@1')
+        if match.stack_sizes[2] > maxes[2]:
+            maxes[2] = match.stack_sizes[2]
+            print(f'NEW GROUND! {match.stack_sizes[2]}@2')
+
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
+    global maxes
     # Check each REGEX one by one, recording how long data takes
     # find out which took the longest, and print it
 
-    fdp = atheris.FuzzedDataProvider(data)
-
-    try:
-        string = fdp.ConsumeUnicode(len(data))
-    except UnicodeDecodeError:
+    if len(data) < 2:
         return
 
-    longest_time = 0
-    slowest_regex = None
+    fdp = atheris.FuzzedDataProvider(data)
 
-    for r in REGEXES:
-        start_time = time.time()  # Start the timer
+    string = fdp.ConsumeUnicode(len(data) - 2)
 
-        # Apply the regex search or match (adjust based on your use case)
-        r.search(string)
+    if '\0' in string:
+        return
 
-        end_time = time.time()  # End the timer
-        elapsed_time = end_time - start_time
+    index = fdp.ConsumeIntInRange(0, len(REGEXES)-1)
 
-        # Check if this regex took the longest
-        if elapsed_time > longest_time:
-            longest_time = elapsed_time
-            slowest_regex = r
-        if elapsed_time > 0.0001:
-            pass
-        elif elapsed_time > 0.0003:
-            pass
-        elif elapsed_time > 0.001:
-            pass
-        elif elapsed_time > 0.003:
-            pass
-        elif elapsed_time > 0.01:
-            pass
-        elif elapsed_time > 0.03:
-            pass
-        elif elapsed_time > 0.1:
-            pass
-        elif elapsed_time > 0.3:
-            pass
-
-    if longest_time > 1:
-        # Print the slowest regex and the time it took if it takes a considerable time
-        print(f"\nSlowest regex: {slowest_regex.pattern}, Time taken: {longest_time:.4f} seconds")
-        raise RuntimeError('Boom')
-
+    ##fuzz_me(index, string)
+    for i in range(len(REGEXES)):
+        fuzz_me(i, string)
 
 atheris.Setup(sys.argv, TestAllWatchedKeywords)
 atheris.Fuzz()

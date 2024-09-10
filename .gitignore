@@ -121,3 +121,4 @@ setp.sh
 
 
 fuzz*.log
+crash-*
