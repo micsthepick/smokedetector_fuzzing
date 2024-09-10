@@ -102,8 +102,8 @@ def TestAllWatchedKeywords(data: bytes):
     max_fail_num_2 = max_fail_num_2 if max_fail_num_2 is not None else 0
     max_fail_num_3 = max_fail_num_3 if max_fail_num_3 is not None else 0
     estimate = min(max(max_fail_num_1, max_fail_num_2, max_fail_num_3), max(min_match_num_1, min_match_num_2, min_match_num_3))
-    if estimate >= (1 << 8):
-        for i in range(16, 9):
+    if estimate >= (1 << 4):
+        for i in reversed(range(4, 17)):
             if ((1<<i)&estimate):
                 print(i)
                 break

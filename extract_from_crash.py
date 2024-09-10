@@ -8,7 +8,7 @@ def extract_string_from_file(filename):
     fdp = atheris.FuzzedDataProvider(data)
     string = fdp.ConsumeUnicode(len(data) - 2)  # Adjust as needed
 
-    print(f'Extracted string: {string}')
+    print(f'Extracted string: {string!r}')
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
