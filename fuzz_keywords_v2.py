@@ -15,7 +15,6 @@ from findspam import URL_REGEX, REPEATED_CHARACTER_RATIO, city_list
 
 MONOLITHIC = regex.compile(get_bookended_keyword_regex_text_from_entries(GlobalVars.watched_keywords.keys()), regex.UNICODE, city=city_list, ignore_unused=True)
 
-@atheris.instrument_func
 def has_few_characters(s):
     uniques = len(set(s) - {"\n", "\t"})
     length = len(s)
@@ -27,7 +26,6 @@ def has_few_characters(s):
         return True, "Contains {} unique character{}".format(uniques, "s" if uniques >= 2 else "")
     return False, ""
 
-@atheris.instrument_func
 def has_repeating_characters(s):
     s = s.strip().replace("\u200B", "").replace("\u200C", "")  # Strip leading and trailing spaces
     if "\n\n" in s or "<code>" in s or "<pre>" in s:
@@ -47,6 +45,14 @@ def has_repeating_characters(s):
     return False, ""
 
 @atheris.instrument_func
+def runbench(string: str):
+    estimate = max(MONOLITHIC.scanner(string).bench()[1:])
+    if estimate >= (1 << 20):
+        raise ValueError(f'BOOM! [[[{string!r}]]] !BOOM')
+    for i in reversed(range(1 << (20-13))):
+        if estimate >= (i << 13):
+            break
+
 def TestAllWatchedKeywords(data: bytes):
     # Check each REGEX one by one, recording how long data takes
     # find out which took the longest, and print it
@@ -67,51 +73,8 @@ def TestAllWatchedKeywords(data: bytes):
     if has_repeating_characters(string)[0]:
         return
 
-    estimate = max(MONOLITHIC.scanner(string).bench()[1:])
-    if estimate >= (1 << 17):
-        raise ValueError(repr(f'BOOM! [[[{string!r}]]] !BOOM'))
-    elif estimate >= (15 << 13):
-        print("15<<13", repr(string))
-    elif estimate >= (14 << 13):
-        print("14<<13", repr(string))
-    elif estimate >= (13 << 13):
-        print("13<<13", repr(string))
-    elif estimate >= (12 << 13):
-        print("12<<13", repr(string))
-    elif estimate >= (11 << 13):
-        print("11<<13", repr(string))
-    elif estimate >= (10 << 13):
-        print("10<<13", repr(string))
-    elif estimate >= (9 << 13):
-        print("9<<13", repr(string))
-    elif estimate >= (8 << 13):
-        print("8<<13", repr(string))
-    elif estimate >= (7 << 13):
-        print("7<<13", repr(string))
-    elif estimate >= (6 << 13):
-        print("6<<13", repr(string))
-    elif estimate >= (5 << 13):
-        print("5<<13", repr(string))
-    elif estimate >= (4 << 13):
-        print("4<<13", repr(string))
-    elif estimate >= (3 << 13):
-        pass
-    elif estimate >= (2 << 13):
-        pass
-    elif estimate >= (1 << 13):
-        pass
-    elif estimate >= (1 << 12):
-        pass
-    elif estimate >= (1 << 11):
-        pass
-    elif estimate >= (1 << 10):
-        pass
-    elif estimate >= (1 << 9):
-        pass
-    elif estimate >= (1 << 8):
-        pass
-    elif estimate >= (1 << 7):
-        pass
+    runbench(string)
+    
 atheris.Setup(sys.argv, TestAllWatchedKeywords)
 atheris.Fuzz()
 
