@@ -105,17 +105,17 @@ def TestAllWatchedKeywords(data: bytes):
     max_fail_num_3 = max_fail_num_3 if max_fail_num_3 is not None else 0
     estimate = max(min_match_num_1, min_match_num_2, min_match_num_3) if is_match else max(max_fail_num_1, max_fail_num_2, max_fail_num_3)
     if estimate >= (1 << 17):
-        raise ValueError(repr(f'BOOM! [[[{string}]]] !BOOM'))
+        raise ValueError(repr(f'BOOM! [[[{string!r}]]] !BOOM'))
     elif estimate >= (1 << 16):
-        print(16)
+        print(16, repr(string))
     elif estimate >= (1 << 15):
-        print(15)
+        print(15, repr(string))
     elif estimate >= (1 << 14):
-        print(14)
+        print(14, repr(string))
     elif estimate >= (1 << 13):
-        print(13)
+        print(13, repr(string))
     elif estimate >= (1 << 12):
-        print(12)
+        print(12, repr(string))
     elif estimate >= (1 << 11):
         print(11)
     elif estimate >= (1 << 10):
