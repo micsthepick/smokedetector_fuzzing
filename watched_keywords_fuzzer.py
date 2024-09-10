@@ -37,7 +37,7 @@ def fuzz_me(index, string):
                     print(i)
                     break
         if max_num > (1 << 17):
-            raise ValueError(repr(f'BOOM! [[[{match.string}]]] !BOOM'))
+            raise ValueError(repr(f'BOOM! [[[{match.string}]]] !BOOM <<<{string}>>>'))
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
