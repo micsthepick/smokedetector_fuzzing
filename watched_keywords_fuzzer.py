@@ -102,13 +102,34 @@ def TestAllWatchedKeywords(data: bytes):
     max_fail_num_2 = max_fail_num_2 if max_fail_num_2 is not None else 0
     max_fail_num_3 = max_fail_num_3 if max_fail_num_3 is not None else 0
     estimate = min(max(max_fail_num_1, max_fail_num_2, max_fail_num_3), max(min_match_num_1, min_match_num_2, min_match_num_3))
-    if estimate >= (1 << 4):
-        for i in reversed(range(4, 17)):
-            if ((1<<i)&estimate):
-                print(i)
-                break
     if estimate >= (1 << 17):
         raise ValueError(repr(f'BOOM! [[[{string}]]] !BOOM'))
+    elif estimate >= (1 << 16):
+        print(16)
+    elif estimate >= (1 << 15):
+        print(15)
+    elif estimate >= (1 << 14):
+        print(14)
+    elif estimate >= (1 << 13):
+        print(13)
+    elif estimate >= (1 << 12):
+        print(12)
+    elif estimate >= (1 << 11):
+        print(11)
+    elif estimate >= (1 << 10):
+        print(10)
+    elif estimate >= (1 << 9):
+        print(9)
+    elif estimate >= (1 << 8):
+        print(8)
+    elif estimate >= (1 << 7):
+        print(7)
+    elif estimate >= (1 << 6):
+        print(6)
+    elif estimate >= (1 << 5):
+        print(5)
+    elif estimate >= (1 << 4):
+        print(4)
 
 atheris.Setup(sys.argv, TestAllWatchedKeywords)
 atheris.Fuzz()
