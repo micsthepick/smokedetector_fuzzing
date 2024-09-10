@@ -5,7 +5,6 @@ import atheris
 #atheris.enabled_hooks.add("RegEx")
 
 with atheris.instrument_imports():
-    import time
     import regex as re
     import sys
 
@@ -58,7 +57,6 @@ def has_repeating_characters(s):
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
-    global maxes
     # Check each REGEX one by one, recording how long data takes
     # find out which took the longest, and print it
 
@@ -83,7 +81,7 @@ def TestAllWatchedKeywords(data: bytes):
     ##fuzz_me(index, string)
     min_match_num = None
     for i in range(len(REGEXES)):
-        stack_sizes = REGEXES[index].bench(string)
+        stack_sizes = REGEXES[index].scanner(string).bench()
         max_num = max(stack_sizes)
         min_match_num = max_num if min_match_num is None else max_num if max_num < min_match_num else min_match_num 
     if min_match_num >= (1 << 10):
