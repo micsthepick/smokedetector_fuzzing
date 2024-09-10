@@ -20,7 +20,33 @@ KWDS = GlobalVars.watched_keywords.keys()
 
 print(f'loaded {len(KWDS)} KWDS')
 
-REGEXES = [regex_compile_no_cache(kw, re.UNICODE, city=city_list, ignore_unused=True) for kw in KWDS if len(set(kw) - set('qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM./\\'))]
+def is_simple_regex(pattern):
+    # Check for advanced regex features including:
+    # - qualifiers: *, +, ?, {n,m}
+    # - backreferences: \1, \2, etc.
+    # - lookaheads: (?=), (?!)
+    # - lookbehinds: (?<=), (?<!)
+    advanced_features = [
+        r'\*',            # Match *
+        r'\+',            # Match +
+        r'\?',            # Match ?
+        r'\{.*?\}',       # Match {n}, {n,}, {n,m}
+        r'\\\d',          # Match backreferences like \1, \2, etc.
+        r'\(\?[:=!]',     # Match lookaheads: (?=), (?!)
+        r'\(\?<=',        # Match positive lookbehind: (?<=)
+        r'\(\?<!',        # Match negative lookbehind: (?<!)
+    ]
+    
+    # Combine all advanced features into one big regex
+    advanced_regex = '|'.join(advanced_features)
+    
+    # If any advanced feature is found, it's not a simple regex
+    if re.search(advanced_regex, pattern):
+        return False
+    
+    return True
+
+REGEXES = [regex_compile_no_cache(kw, re.UNICODE, city=city_list, ignore_unused=True) for kw in KWDS if not is_simple_regex(kw)]
 
 print(f'rejected {len(KWDS)-len(REGEXES)} KWDS (too simple) and left with {len(REGEXES)}')
 
