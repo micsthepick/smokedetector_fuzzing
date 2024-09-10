@@ -25,29 +25,18 @@ REGEXES = [regex_compile_no_cache(kw, re.UNICODE, city=city_list, ignore_unused=
 
 print(f'rejected {len(KWDS)-len(REGEXES)} KWDS (too simple) and left with {len(REGEXES)}')
 
-
-maxes = [0,0,0]
-
 @atheris.instrument_func
 def fuzz_me(index, string):
     match = REGEXES[index].search(string)
 
     if match is not None:
-        if max(match.stack_sizes) > 1000:
-            pass
-        if max(match.stack_sizes) > 10000:
-            pass
-        if max(match.stack_sizes) > 100000:
-            raise RuntimeError(repr(f'BOOM: [[[{match.string}]]]'))
-        if match.stack_sizes[0] > maxes[0]:
-            maxes[0] = match.stack_sizes[0]
-            print(f'NEW GROUND! {match.stack_sizes[0]}@0')
-        if match.stack_sizes[1] > maxes[1]:
-            maxes[1] = match.stack_sizes[1]
-            print(f'NEW GROUND! {match.stack_sizes[1]}@1')
-        if match.stack_sizes[2] > maxes[2]:
-            maxes[2] = match.stack_sizes[2]
-            print(f'NEW GROUND! {match.stack_sizes[2]}@2')
+        max_num = max(match.stack_sizes)
+        if max_num >= (1 << 10):
+            for i in range(10, 14):
+               if (1<<i):
+                    print(i)
+        if max_num > 1 << 14:
+            raise ValueError(repr(f'BOOM! [[[{match.string}]]] !BOOM'))
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
@@ -58,12 +47,12 @@ def TestAllWatchedKeywords(data: bytes):
     if len(data) < 2:
         return
 
+    if len([v for v in data if v == 0]) > 0:
+        return
+
     fdp = atheris.FuzzedDataProvider(data)
 
     string = fdp.ConsumeUnicode(len(data) - 2)
-
-    if '\0' in string:
-        return
 
     index = fdp.ConsumeIntInRange(0, len(REGEXES)-1)
 
