@@ -26,20 +26,6 @@ REGEXES = [regex_compile_no_cache(kw, re.UNICODE, city=city_list, ignore_unused=
 print(f'rejected {len(KWDS)-len(REGEXES)} KWDS (too simple) and left with {len(REGEXES)}')
 
 @atheris.instrument_func
-def fuzz_me(index, string):
-    match = REGEXES[index].search(string)
-
-    if match is not None:
-        max_num = max(match.stack_sizes)
-        if max_num >= (1 << 10):
-            for i in range(16, 9):
-               if ((1<<i)&max_num):
-                    print(i)
-                    break
-        if max_num > (1 << 17):
-            raise ValueError(repr(f'BOOM! [[[{match.string}]]] !BOOM <<<{string}>>>'))
-
-@atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
     global maxes
     # Check each REGEX one by one, recording how long data takes
@@ -58,8 +44,21 @@ def TestAllWatchedKeywords(data: bytes):
     index = fdp.ConsumeIntInRange(0, len(REGEXES)-1)
 
     ##fuzz_me(index, string)
+    min_match_num = None
     for i in range(len(REGEXES)):
-        fuzz_me(i, string)
+        match = REGEXES[index].search(string)
+
+        if match is not None:
+            max_num = max(match.stack_sizes)
+            min_match_num = max_num if min_match_num is None else max_num if max_num > min_match_num else min_match_num 
+    min_match_num = 0 if min_match_num is None else min_match_num
+    if min_match_num >= (1 << 10):
+        for i in range(16, 9):
+            if ((1<<i)&min_match_num):
+                print(i)
+                break
+    if min_match_num >= (1 << 17):
+        raise ValueError(repr(f'BOOM! [[[{match.string}]]] !BOOM'))
 
 atheris.Setup(sys.argv, TestAllWatchedKeywords)
 atheris.Fuzz()
