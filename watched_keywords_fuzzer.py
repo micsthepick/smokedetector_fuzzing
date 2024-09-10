@@ -157,9 +157,9 @@ def TestAllWatchedKeywords(data: bytes):
     elif estimate >= (4 << 13):
         print("4<<13", repr(string))
     elif estimate >= (3 << 13):
-        print("3<<13", repr(string))
+        pass
     elif estimate >= (2 << 13):
-        print("2<<13", repr(string))
+        pass
     elif estimate >= (1 << 13):
         pass
     elif estimate >= (1 << 12):
