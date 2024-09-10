@@ -79,17 +79,29 @@ def TestAllWatchedKeywords(data: bytes):
     index = fdp.ConsumeIntInRange(0, len(REGEXES)-1)
 
     ##fuzz_me(index, string)
-    min_match_num = None
+    min_match_num_1 = None
+    min_match_num_2 = None
+    min_match_num_3 = None
+    max_fail_num_1 = None
+    max_fail_num_2 = None
+    max_fail_num_3 = None
     for i in range(len(REGEXES)):
         stack_sizes = REGEXES[index].scanner(string).bench()
-        max_num = max(stack_sizes)
-        min_match_num = max_num if min_match_num is None else max_num if max_num < min_match_num else min_match_num 
-    if min_match_num >= (1 << 10):
+        if stack_sizes[0]:
+            min_match_num_1 = stack_sizes[1] if min_match_num_1 is None else stack_sizes[1] if stack_sizes[1] < min_match_num_1 else min_match_num_1
+            min_match_num_2 = stack_sizes[1] if min_match_num_2 is None else stack_sizes[2] if stack_sizes[2] < min_match_num_2 else min_match_num_2
+            min_match_num_3 = stack_sizes[1] if min_match_num_3 is None else stack_sizes[3] if stack_sizes[3] < min_match_num_3 else min_match_num_3
+        else:
+            max_fail_num_1 = stack_sizes[1] if max_fail_num_1 is None else stack_sizes[1] if stack_sizes[1] > max_fail_num_1 else max_fail_num_1
+            max_fail_num_2 = stack_sizes[1] if max_fail_num_2 is None else stack_sizes[2] if stack_sizes[2] > max_fail_num_2 else max_fail_num_2
+            max_fail_num_3 = stack_sizes[1] if max_fail_num_3 is None else stack_sizes[3] if stack_sizes[3] > max_fail_num_3 else max_fail_num_3
+    estimate = min(max(max_fail_num_1, max_fail_num_2, max_fail_num_3), max(min_match_num_1, min_match_num_2, min_match_num_3))
+    if estimate >= (1 << 8):
         for i in range(16, 9):
-            if ((1<<i)&min_match_num):
+            if ((1<<i)&estimate):
                 print(i)
                 break
-    if min_match_num >= (1 << 17):
+    if estimate >= (1 << 17):
         raise ValueError(repr(f'BOOM! [[[{string}]]] !BOOM'))
 
 atheris.Setup(sys.argv, TestAllWatchedKeywords)
