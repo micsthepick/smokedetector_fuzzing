@@ -85,9 +85,11 @@ def TestAllWatchedKeywords(data: bytes):
     max_fail_num_1 = None
     max_fail_num_2 = None
     max_fail_num_3 = None
+    is_match = False
     for i in range(len(REGEXES)):
         stack_sizes = REGEXES[i].scanner(string).bench()
         if stack_sizes[0]:
+            is_match = True
             min_match_num_1 = stack_sizes[1] if (min_match_num_1 is None) else (stack_sizes[1] if (stack_sizes[1] < min_match_num_1) else min_match_num_1)
             min_match_num_2 = stack_sizes[2] if (min_match_num_2 is None) else (stack_sizes[2] if (stack_sizes[2] < min_match_num_2) else min_match_num_2)
             min_match_num_3 = stack_sizes[3] if (min_match_num_3 is None) else (stack_sizes[3] if (stack_sizes[3] < min_match_num_3) else min_match_num_3)
@@ -101,7 +103,7 @@ def TestAllWatchedKeywords(data: bytes):
     max_fail_num_1 = max_fail_num_1 if max_fail_num_1 is not None else 0
     max_fail_num_2 = max_fail_num_2 if max_fail_num_2 is not None else 0
     max_fail_num_3 = max_fail_num_3 if max_fail_num_3 is not None else 0
-    estimate = min(max(max_fail_num_1, max_fail_num_2, max_fail_num_3), max(min_match_num_1, min_match_num_2, min_match_num_3))
+    estimate = max(min_match_num_1, min_match_num_2, min_match_num_3) if is_match else max(max_fail_num_1, max_fail_num_2, max_fail_num_3)
     if estimate >= (1 << 17):
         raise ValueError(repr(f'BOOM! [[[{string}]]] !BOOM'))
     elif estimate >= (1 << 16):
