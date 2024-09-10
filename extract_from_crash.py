@@ -5,6 +5,9 @@ def extract_string_from_file(filename):
     with open(filename, 'rb') as f:
         data = f.read()
 
+    if len(data) < 3:
+        return
+
     fdp = atheris.FuzzedDataProvider(data)
     string = fdp.ConsumeUnicode(len(data) - 2)  # Adjust as needed
 
