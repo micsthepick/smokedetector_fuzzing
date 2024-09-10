@@ -86,7 +86,7 @@ def TestAllWatchedKeywords(data: bytes):
     max_fail_num_2 = None
     max_fail_num_3 = None
     for i in range(len(REGEXES)):
-        stack_sizes = REGEXES[index].scanner(string).bench()
+        stack_sizes = REGEXES[i].scanner(string).bench()
         if stack_sizes[0]:
             min_match_num_1 = stack_sizes[1] if (min_match_num_1 is None) else (stack_sizes[1] if (stack_sizes[1] < min_match_num_1) else min_match_num_1)
             min_match_num_2 = stack_sizes[2] if (min_match_num_2 is None) else (stack_sizes[2] if (stack_sizes[2] < min_match_num_2) else min_match_num_2)
