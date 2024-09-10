@@ -126,12 +126,6 @@ def TestAllWatchedKeywords(data: bytes):
         print(8)
     elif estimate >= (1 << 7):
         print(7)
-    elif estimate >= (1 << 6):
-        print(6)
-    elif estimate >= (1 << 5):
-        print(5)
-    elif estimate >= (1 << 4):
-        print(4)
 
 atheris.Setup(sys.argv, TestAllWatchedKeywords)
 atheris.Fuzz()
