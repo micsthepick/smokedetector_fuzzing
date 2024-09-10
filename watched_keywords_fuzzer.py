@@ -89,12 +89,12 @@ def TestAllWatchedKeywords(data: bytes):
     if len(data) < 2:
         return
 
-    if len([v for v in data if v == 0]) > 0:
-        return
-
     fdp = atheris.FuzzedDataProvider(data)
 
     string = fdp.ConsumeUnicode(len(data) - 2)
+
+    if len({'\0', '\r', '\n'} & set(string)) > 0:
+        return
 
     if has_few_characters(string)[0]:
         return
@@ -132,26 +132,47 @@ def TestAllWatchedKeywords(data: bytes):
     estimate = max(min_match_num_1, min_match_num_2, min_match_num_3) if is_match else max(max_fail_num_1, max_fail_num_2, max_fail_num_3)
     if estimate >= (1 << 17):
         raise ValueError(repr(f'BOOM! [[[{string!r}]]] !BOOM'))
-    elif estimate >= (1 << 16):
-        print(16, repr(string))
-    elif estimate >= (1 << 15):
-        print(15, repr(string))
-    elif estimate >= (1 << 14):
-        print(14, repr(string))
+    elif estimate >= (15 << 13):
+        print("15<<13", repr(string))
+    elif estimate >= (14 << 13):
+        print("14<<13", repr(string))
+    elif estimate >= (13 << 13):
+        print("13<<13", repr(string))
+    elif estimate >= (12 << 13):
+        print("12<<13", repr(string))
+    elif estimate >= (11 << 13):
+        print("11<<13", repr(string))
+    elif estimate >= (10 << 13):
+        print("10<<13", repr(string))
+    elif estimate >= (9 << 13):
+        print("9<<13", repr(string))
+    elif estimate >= (8 << 13):
+        print("8<<13", repr(string))
+    elif estimate >= (7 << 13):
+        print("7<<13", repr(string))
+    elif estimate >= (6 << 13):
+        print("6<<13", repr(string))
+    elif estimate >= (5 << 13):
+        print("5<<13", repr(string))
+    elif estimate >= (4 << 13):
+        print("4<<13", repr(string))
+    elif estimate >= (3 << 13):
+        print("3<<13", repr(string))
+    elif estimate >= (2 << 13):
+        print("2<<13", repr(string))
     elif estimate >= (1 << 13):
-        print(13, repr(string))
+        pass
     elif estimate >= (1 << 12):
-        print(12, repr(string))
+        pass
     elif estimate >= (1 << 11):
-        print(11)
+        pass
     elif estimate >= (1 << 10):
-        print(10)
+        pass
     elif estimate >= (1 << 9):
-        print(9)
+        pass
     elif estimate >= (1 << 8):
-        print(8)
+        pass
     elif estimate >= (1 << 7):
-        print(7)
-
+        pass
 atheris.Setup(sys.argv, TestAllWatchedKeywords)
 atheris.Fuzz()
