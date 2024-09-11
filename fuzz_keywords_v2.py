@@ -48,12 +48,12 @@ def has_repeating_characters(s):
 
 @atheris.instrument_func
 def runbench(string: str):
-    estimate = max(MONOLITHIC.scanner(string).bench()[1:])
-    if estimate >= (1 << 20):
-        raise ValueError(f'BOOM! [[[{string!r}]]] !BOOM')
-    for i in reversed(range(1 << (20-13))):
-        if estimate >= (i << 13):
-            break
+    for estimate in MONOLITHIC.scanner(string).bench()[1:]:
+        if estimate >= (1 << 20):
+            raise ValueError(f'BOOM! [[[{string!r}]]] !BOOM')
+        for i in reversed(range(1 << (20-13))):
+            if estimate >= (i << 13):
+                break
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
