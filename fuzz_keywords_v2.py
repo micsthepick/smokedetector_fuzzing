@@ -15,6 +15,7 @@ from findspam import URL_REGEX, REPEATED_CHARACTER_RATIO, city_list
 
 MONOLITHIC = regex.compile(get_bookended_keyword_regex_text_from_entries(GlobalVars.watched_keywords.keys()), regex.UNICODE, city=city_list, ignore_unused=True)
 
+@atheris.instrument_func
 def has_few_characters(s):
     uniques = len(set(s) - {"\n", "\t"})
     length = len(s)
@@ -26,6 +27,7 @@ def has_few_characters(s):
         return True, "Contains {} unique character{}".format(uniques, "s" if uniques >= 2 else "")
     return False, ""
 
+@atheris.instrument_func
 def has_repeating_characters(s):
     s = s.strip().replace("\u200B", "").replace("\u200C", "")  # Strip leading and trailing spaces
     if "\n\n" in s or "<code>" in s or "<pre>" in s:
@@ -53,6 +55,7 @@ def runbench(string: str):
         if estimate >= (i << 13):
             break
 
+@atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
     # Check each REGEX one by one, recording how long data takes
     # find out which took the longest, and print it
@@ -74,7 +77,7 @@ def TestAllWatchedKeywords(data: bytes):
         return
 
     runbench(string)
-    
-atheris.Setup(sys.argv, TestAllWatchedKeywords)
-atheris.Fuzz()
 
+if __name__ == '__main__':
+    atheris.Setup(sys.argv, TestAllWatchedKeywords)
+    atheris.Fuzz()
