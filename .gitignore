@@ -122,3 +122,4 @@ setp.sh
 
 fuzz*.log
 crashes/*
+slow-unit*

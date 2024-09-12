@@ -11,15 +11,16 @@ def extract_string_from_file(filename):
     fdp = atheris.FuzzedDataProvider(data)
     string = fdp.ConsumeUnicode(len(data))  # Adjust as needed
 
-    return string
+    return string.encode('utf-8','ignore').decode("utf-8")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <input_file>")
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <input_file> <output_file>")
         sys.exit(1)
 
     input_file = sys.argv[1]
+    output_file = sys.argv[2]
     s = extract_string_from_file(input_file)
 
-    with open(f"{'/'.join(input_file.split('/')[:-1])}/teststring-{input_file.split('/')[-1]}", 'w') as f:
+    with open(f"{output_file}", 'w') as f:
         f.write(s)
