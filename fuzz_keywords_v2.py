@@ -1,16 +1,50 @@
 #!/usr/bin/python
 import atheris
+import signal
+import os
+import pickle
 
 with atheris.instrument_imports():
     import regex
     import sys
 
-from globalvars import GlobalVars
 
-from helpers import get_bookended_keyword_regex_text_from_entries
-from findspam import URL_REGEX, REPEATED_CHARACTER_RATIO, city_list
+def get_file_timestamp(file_path):
+    try:
+        return os.path.getmtime(file_path)
+    except OSError:
+        raise FileNotFoundError(f"File not found: {file_path}")
 
-MONOLITHIC = regex.compile(get_bookended_keyword_regex_text_from_entries(GlobalVars.watched_keywords.keys()), regex.UNICODE, city=city_list, ignore_unused=True)
+def load_or_compile_regex(txt_file_path, pickle_dir):
+    txt_file_timestamp = get_file_timestamp(txt_file_path)
+    pickle_filename = f"watched_keywords_regex_{int(txt_file_timestamp)}.pkl"
+    pickle_path = os.path.join(pickle_dir, pickle_filename)
+
+    if os.path.exists(pickle_path):
+        with open(pickle_path, 'rb') as pickle_file:
+            URL_REGEX, REPEATED_CHARACTER_RATIO, compiled_regex = pickle.load(pickle_file)
+            print(f"Loaded regex for {txt_file_path} from pickle!")
+    else:
+        from globalvars import GlobalVars
+        from helpers import get_bookended_keyword_regex_text_from_entries
+        from findspam import URL_REGEX, REPEATED_CHARACTER_RATIO, city_list
+        keyword_regex = get_bookended_keyword_regex_text_from_entries(GlobalVars.watched_keywords.keys())
+        compiled_regex = regex.compile(keyword_regex, regex.UNICODE, city=city_list)
+
+        with open(pickle_path, 'wb') as pickle_file:
+            pickle.dump([URL_REGEX, REPEATED_CHARACTER_RATIO, compiled_regex], pickle_file)
+            print(f"Saved regex for {txt_file_path} to pickle!")
+
+
+    return [URL_REGEX, REPEATED_CHARACTER_RATIO, compiled_regex]
+
+txt_file = "watched_keywords.txt"
+pickle_directory = "./pickles"
+
+if not os.path.exists(pickle_directory):
+    os.makedirs(pickle_directory)
+
+URL_REGEX, REPEATED_CHARACTER_RATIO, MONOLITHIC = load_or_compile_regex(txt_file, pickle_directory)
 
 @atheris.instrument_func
 def has_few_characters(s):
@@ -46,139 +80,75 @@ def has_repeating_characters(s):
 @atheris.instrument_func
 def runbench(string: str):
     for estimate in MONOLITHIC.scanner(string).bench()[1:]:
-        if estimate >= (1 << 20):
+        if estimate >= (1 << 22):
             raise ValueError(f'BOOM! [[[{string!r}]]] !BOOM')
         ##for i in reversed(range(1, 1 << (20-13))):
-        ##    if estimate >= (i << 13):
+        ##    if estimate >= (i << 16):
         ##        break
         # for loop doesn't work properly with atheris at this moment
-        if estimate >= (127 << 13): break
-        elif estimate >= (126 << 13): break
-        elif estimate >= (125 << 13): break
-        elif estimate >= (124 << 13): break
-        elif estimate >= (123 << 13): break
-        elif estimate >= (122 << 13): break
-        elif estimate >= (121 << 13): break
-        elif estimate >= (120 << 13): break
-        elif estimate >= (119 << 13): break
-        elif estimate >= (118 << 13): break
-        elif estimate >= (117 << 13): break
-        elif estimate >= (116 << 13): break
-        elif estimate >= (115 << 13): break
-        elif estimate >= (114 << 13): break
-        elif estimate >= (113 << 13): break
-        elif estimate >= (112 << 13): break
-        elif estimate >= (111 << 13): break
-        elif estimate >= (110 << 13): break
-        elif estimate >= (109 << 13): break
-        elif estimate >= (108 << 13): break
-        elif estimate >= (107 << 13): break
-        elif estimate >= (106 << 13): break
-        elif estimate >= (105 << 13): break
-        elif estimate >= (104 << 13): break
-        elif estimate >= (103 << 13): break
-        elif estimate >= (102 << 13): break
-        elif estimate >= (101 << 13): break
-        elif estimate >= (100 << 13): break
-        elif estimate >= (99 << 13): break
-        elif estimate >= (98 << 13): break
-        elif estimate >= (97 << 13): break
-        elif estimate >= (96 << 13): break
-        elif estimate >= (95 << 13): break
-        elif estimate >= (94 << 13): break
-        elif estimate >= (93 << 13): break
-        elif estimate >= (92 << 13): break
-        elif estimate >= (91 << 13): break
-        elif estimate >= (90 << 13): break
-        elif estimate >= (89 << 13): break
-        elif estimate >= (88 << 13): break
-        elif estimate >= (87 << 13): break
-        elif estimate >= (86 << 13): break
-        elif estimate >= (85 << 13): break
-        elif estimate >= (84 << 13): break
-        elif estimate >= (83 << 13): break
-        elif estimate >= (82 << 13): break
-        elif estimate >= (81 << 13): break
-        elif estimate >= (80 << 13): break
-        elif estimate >= (79 << 13): break
-        elif estimate >= (78 << 13): break
-        elif estimate >= (77 << 13): break
-        elif estimate >= (76 << 13): break
-        elif estimate >= (75 << 13): break
-        elif estimate >= (74 << 13): break
-        elif estimate >= (73 << 13): break
-        elif estimate >= (72 << 13): break
-        elif estimate >= (71 << 13): break
-        elif estimate >= (70 << 13): break
-        elif estimate >= (69 << 13): break
-        elif estimate >= (68 << 13): break
-        elif estimate >= (67 << 13): break
-        elif estimate >= (66 << 13): break
-        elif estimate >= (65 << 13): break
-        elif estimate >= (64 << 13): break
-        elif estimate >= (63 << 13): break
-        elif estimate >= (62 << 13): break
-        elif estimate >= (61 << 13): break
-        elif estimate >= (60 << 13): break
-        elif estimate >= (59 << 13): break
-        elif estimate >= (58 << 13): break
-        elif estimate >= (57 << 13): break
-        elif estimate >= (56 << 13): break
-        elif estimate >= (55 << 13): break
-        elif estimate >= (54 << 13): break
-        elif estimate >= (53 << 13): break
-        elif estimate >= (52 << 13): break
-        elif estimate >= (51 << 13): break
-        elif estimate >= (50 << 13): break
-        elif estimate >= (49 << 13): break
-        elif estimate >= (48 << 13): break
-        elif estimate >= (47 << 13): break
-        elif estimate >= (46 << 13): break
-        elif estimate >= (45 << 13): break
-        elif estimate >= (44 << 13): break
-        elif estimate >= (43 << 13): break
-        elif estimate >= (42 << 13): break
-        elif estimate >= (41 << 13): break
-        elif estimate >= (40 << 13): break
-        elif estimate >= (39 << 13): break
-        elif estimate >= (38 << 13): break
-        elif estimate >= (37 << 13): break
-        elif estimate >= (36 << 13): break
-        elif estimate >= (35 << 13): break
-        elif estimate >= (34 << 13): break
-        elif estimate >= (33 << 13): break
-        elif estimate >= (32 << 13): break
-        elif estimate >= (31 << 13): break
-        elif estimate >= (30 << 13): break
-        elif estimate >= (29 << 13): break
-        elif estimate >= (28 << 13): break
-        elif estimate >= (27 << 13): break
-        elif estimate >= (26 << 13): break
-        elif estimate >= (25 << 13): break
-        elif estimate >= (24 << 13): break
-        elif estimate >= (23 << 13): break
-        elif estimate >= (22 << 13): break
-        elif estimate >= (21 << 13): break
-        elif estimate >= (20 << 13): break
-        elif estimate >= (19 << 13): break
-        elif estimate >= (18 << 13): break
-        elif estimate >= (17 << 13): break
-        elif estimate >= (16 << 13): break
-        elif estimate >= (15 << 13): break
-        elif estimate >= (14 << 13): break
-        elif estimate >= (13 << 13): break
-        elif estimate >= (12 << 13): break
-        elif estimate >= (11 << 13): break
-        elif estimate >= (10 << 13): break
-        elif estimate >= (9 << 13): break
-        elif estimate >= (8 << 13): break
-        elif estimate >= (7 << 13): break
-        elif estimate >= (6 << 13): break
-        elif estimate >= (5 << 13): break
-        elif estimate >= (4 << 13): break
-        elif estimate >= (3 << 13): break
-        elif estimate >= (2 << 13): break
-        elif estimate >= (1 << 13): break
+        if estimate >= (63 << 16): break
+        elif estimate >= (62 << 16): break
+        elif estimate >= (61 << 16): break
+        elif estimate >= (60 << 16): break
+        elif estimate >= (59 << 16): break
+        elif estimate >= (58 << 16): break
+        elif estimate >= (57 << 16): break
+        elif estimate >= (56 << 16): break
+        elif estimate >= (55 << 16): break
+        elif estimate >= (54 << 16): break
+        elif estimate >= (53 << 16): break
+        elif estimate >= (52 << 16): break
+        elif estimate >= (51 << 16): break
+        elif estimate >= (50 << 16): break
+        elif estimate >= (49 << 16): break
+        elif estimate >= (48 << 16): break
+        elif estimate >= (47 << 16): break
+        elif estimate >= (46 << 16): break
+        elif estimate >= (45 << 16): break
+        elif estimate >= (44 << 16): break
+        elif estimate >= (43 << 16): break
+        elif estimate >= (42 << 16): break
+        elif estimate >= (41 << 16): break
+        elif estimate >= (40 << 16): break
+        elif estimate >= (39 << 16): break
+        elif estimate >= (38 << 16): break
+        elif estimate >= (37 << 16): break
+        elif estimate >= (36 << 16): break
+        elif estimate >= (35 << 16): break
+        elif estimate >= (34 << 16): break
+        elif estimate >= (33 << 16): break
+        elif estimate >= (32 << 16): break
+        elif estimate >= (31 << 16): break
+        elif estimate >= (30 << 16): break
+        elif estimate >= (29 << 16): break
+        elif estimate >= (28 << 16): break
+        elif estimate >= (27 << 16): break
+        elif estimate >= (26 << 16): break
+        elif estimate >= (25 << 16): break
+        elif estimate >= (24 << 16): break
+        elif estimate >= (23 << 16): break
+        elif estimate >= (22 << 16): break
+        elif estimate >= (21 << 16): break
+        elif estimate >= (20 << 16): break
+        elif estimate >= (19 << 16): break
+        elif estimate >= (18 << 16): break
+        elif estimate >= (17 << 16): break
+        elif estimate >= (16 << 16): break
+        elif estimate >= (15 << 16): break
+        elif estimate >= (14 << 16): break
+        elif estimate >= (13 << 16): break
+        elif estimate >= (12 << 16): break
+        elif estimate >= (11 << 16): break
+        elif estimate >= (10 << 16): break
+        elif estimate >= (9 << 16): break
+        elif estimate >= (8 << 16): break
+        elif estimate >= (7 << 16): break
+        elif estimate >= (6 << 16): break
+        elif estimate >= (5 << 16): break
+        elif estimate >= (4 << 16): break
+        elif estimate >= (3 << 16): break
+        elif estimate >= (2 << 16): break
+        elif estimate >= (1 << 16): break
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):
@@ -195,6 +165,12 @@ def TestAllWatchedKeywords(data: bytes):
     if len({'\0', '\r', '\n'} & set(string)) > 0:
         return
 
+    # hangul syllables and surrogates not allowed
+    # (not sure about the hangul)
+    for c in string:
+        if 44032 <= ord(c) < 57344:
+            return
+
     if has_few_characters(string)[0]:
         return
     
@@ -203,6 +179,11 @@ def TestAllWatchedKeywords(data: bytes):
 
     runbench(string)
 
+def stop_fuzzing(signum, frame):
+    print("\nGracefully stopping fuzzing...")
+    sys.exit(0)  # Exit the program without error
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, stop_fuzzing)
     atheris.Setup(sys.argv, TestAllWatchedKeywords)
     atheris.Fuzz()

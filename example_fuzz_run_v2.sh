@@ -1,1 +1,1 @@
-./fuzz_keywords_v2.py -max_len=30000 -report_slow_units=100 -fork=12 -reduce_inputs=1 -ignore_timeouts=1 -ignore_ooms=0 -entropic_feature_frequency_threshold=15 crashes crashes
+ASAN_OPTIONS=detect_leaks=0:quarantine_size=1024 LD_PRELOAD=$(python -c "import atheris; print(atheris.path())")/asan_with_fuzzer.so python ./fuzz_keywords_v2.py -max_len=30000 -report_slow_units=100 -fork=10 -reduce_inputs=1 -ignore_timeouts=1 -ignore_ooms=0 -rss_limit_mb=32768 crashes crashes
