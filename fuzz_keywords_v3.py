@@ -111,12 +111,24 @@ def runbench(lhs: str, mid: str, rhs: str):
     else:
         estimate = np.polyval(poly_coeffs, maxpump)
     estimate = np.log(estimate)
-    if estimate >= 20:
-        raise ValueError(f'BOOM! [[[{lhs!r}][{mid!r}][{rhs!r}]]] !BOOM')
+    if estimate >= 32:
+        raise ValueError(f'BOOM! <{estimate}> [[[{lhs!r}][{mid!r}][{rhs!r}]]] !BOOM')
     ##for i in reversed(range(1, 1 << (20-13))):
     ##    if estimate >= (i):
     ##        return estimate
     # for loop doesn't work properly with atheris at this moment
+    if estimate >= (31): return estimate
+    if estimate >= (30): return estimate
+    if estimate >= (29): return estimate
+    if estimate >= (28): return estimate
+    if estimate >= (27): return estimate
+    if estimate >= (26): return estimate
+    if estimate >= (25): return estimate
+    if estimate >= (24): return estimate
+    if estimate >= (23): return estimate
+    if estimate >= (22): return estimate
+    if estimate >= (21): return estimate
+    if estimate >= (20): return estimate
     if estimate >= (19): return estimate
     elif estimate >= (18): return estimate
     elif estimate >= (17): return estimate
