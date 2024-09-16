@@ -111,13 +111,17 @@ def runbench(lhs: str, mid: str, rhs: str):
     else:
         estimate = np.polyval(poly_coeffs, maxpump)
     estimate = np.log(estimate)
-    if estimate >= 16:
+    if estimate >= 20:
         raise ValueError(f'BOOM! [[[{lhs!r}][{mid!r}][{rhs!r}]]] !BOOM')
     ##for i in reversed(range(1, 1 << (20-13))):
     ##    if estimate >= (i):
     ##        return estimate
     # for loop doesn't work properly with atheris at this moment
-    if estimate >= (15): return estimate
+    if estimate >= (19): return estimate
+    elif estimate >= (18): return estimate
+    elif estimate >= (17): return estimate
+    elif estimate >= (16): return estimate
+    elif estimate >= (15): return estimate
     elif estimate >= (14): return estimate
     elif estimate >= (13): return estimate
     elif estimate >= (12): return estimate
@@ -148,7 +152,7 @@ def TestAllWatchedKeywords(data: bytes):
 
     string = fdp.ConsumeUnicodeNoSurrogates(MAXPOSTLEN)
 
-    string = ''.join(c for c in string if c not in {'\0', '\r', '\n', '\x01'} and (ord(c) < 44032 or ord(c) >= 57344))
+    string = ''.join(c for c in string if c not in {'\0', '\r', '\n', '\x1e'} and (ord(c) < 44032 or ord(c) >= 57344) and (ord(c) < 0x7f or ord(c) > 0x9f) and ord(c) >= 20)
 
     # hangul syllables and surrogates not allowed
     # (not sure for reasoning about the hangul)
