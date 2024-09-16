@@ -152,7 +152,7 @@ def TestAllWatchedKeywords(data: bytes):
 
     string = fdp.ConsumeUnicodeNoSurrogates(MAXPOSTLEN)
 
-    string = ''.join(c for c in string if c not in {'\0', '\r', '\n', '\x1e'} and (ord(c) < 44032 or ord(c) >= 57344) and (ord(c) < 0x7f or ord(c) > 0x9f) and ord(c) >= 20)
+    string = ''.join(c for c in string if c not in {'\0', '\r', '\n', '\x1e'} and (ord(c) < 44032 or ord(c) >= 57344) and (ord(c) < 0x7f or ord(c) > 0x9f) and ord(c) >= 0x20)
 
     # hangul syllables and surrogates not allowed
     # (not sure for reasoning about the hangul)

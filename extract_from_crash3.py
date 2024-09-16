@@ -16,7 +16,7 @@ def extract_string_from_file(filename):
     split2 = fdp.ConsumeUInt(2)
     string = fdp.ConsumeUnicodeNoSurrogates(MAXPOSTLEN)
 
-    string = ''.join(c for c in string if c not in {'\0', '\r', '\n', '\x1e'} and (ord(c) < 44032 or ord(c) >= 57344) and (ord(c) < 0x7f or ord(c) > 0x9f) and ord(c) >= 20)
+    string = ''.join(c for c in string if c not in {'\0', '\r', '\n', '\x1e'} and (ord(c) < 44032 or ord(c) >= 57344) and (ord(c) < 0x7f or ord(c) > 0x9f) and ord(c) >= 0x20)
 
     mystringlen = len(string)
 
