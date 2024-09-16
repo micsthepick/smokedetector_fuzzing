@@ -4,10 +4,8 @@ import numpy as np
 def estimate_bc(x, y, a):
     log_y = np.log(y-a)
     b, c = np.polyfit(x, log_y, 1)
-    print(b, c)
     y_pred = np.polyval([b, c], x)
     c = np.exp(c)
-    print(log_y, y_pred)
     return np.sum((log_y-y_pred)**2), b, c
 
 def get_coeffs(x, y):

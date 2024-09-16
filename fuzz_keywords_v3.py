@@ -110,9 +110,12 @@ def get_trend(x_values, y_values, point):
     ssq_exp = np.sum((y_values - y_exp) ** 2)
     if ssq_exp < ssq_poly1 and ssq_exp < ssq_poly2 and ssq_exp < ssq_poly3:
         estimate = e_a + np.exp(e_b * point) * e_c
+        trend_type = 0
     else:
-        estimate = np.polyval([poly_coeffs1, poly_coeffs2, poly_coeffs3][np.argmin([ssq_poly1, ssq_poly2, ssq_poly3])], point)
-    return np.log(estimate)
+        trend_type = np.argmin([ssq_poly1, ssq_poly2, ssq_poly3])
+        estimate = np.polyval([poly_coeffs1, poly_coeffs2, poly_coeffs3][trend_type], point)
+        trend_type += 1
+    return np.log(estimate), trend_type
 
 @atheris.instrument_func
 def runbench(lhs: str, mid: str, rhs: str):
@@ -124,13 +127,10 @@ def runbench(lhs: str, mid: str, rhs: str):
     for pump in x_values:
         string = lhs + mid*pump + rhs
         y_values.append(MONOLITHIC.scanner(string).bench()[-1])
-    estimate = get_trend(x_values, y_values, maxpump)
+    estimate, tt = get_trend(x_values, y_values, maxpump)
     if estimate >= 32:
-        raise ValueError(f'BOOM! <{estimate}> [[[{lhs!r}][{mid!r}][{rhs!r}]]] !BOOM')
-    ##for i in reversed(range(1, 1 << (20-13))):
-    ##    if estimate >= (i):
-    ##        return estimate
-    # for loop doesn't work properly with atheris at this moment
+        raise ValueError(f"BOOM! <{estimate}> [[[{lhs!r}][{mid!r}][{rhs!r}]]] <trend:{['exp', 'lin', 'sqr', 'cub'][tt]}> !BOOM")
+    # rolled for loop doesn't work properly with atheris because it's not considered as indivudual branches
     if estimate >= (31): return estimate
     if estimate >= (30): return estimate
     if estimate >= (29): return estimate
