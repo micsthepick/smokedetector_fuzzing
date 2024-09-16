@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import math
 import atheris
 import os
 import pickle
@@ -83,6 +82,39 @@ def has_repeating_characters(s):
     return False, ""
 
 @atheris.instrument_func
+def get_trend(x_values, y_values, point):
+    if not isinstance(x_values, np.ndarray):
+        x_values = np.array(x_values)
+    if not isinstance(y_values, np.ndarray):
+        y_values = np.array(y_values)
+    # fit lin/quad/cubic
+    poly_coeffs1 = np.polyfit(x_values, y_values, 1)
+    poly_coeffs2 = np.polyfit(x_values, y_values, 2)
+    poly_coeffs3 = np.polyfit(x_values, y_values, 3)
+    if poly_coeffs1[0] < 0:
+        poly_coeffs1[0] = 0
+    if poly_coeffs2[0] < 0:
+        poly_coeffs2 = [0] + poly_coeffs1
+    if poly_coeffs3[0] < 0:
+        poly_coeffs3 = [0] + poly_coeffs2
+    y_poly1 = np.polyval(poly_coeffs1, x_values)
+    y_poly2 = np.polyval(poly_coeffs2, x_values)
+    y_poly3 = np.polyval(poly_coeffs3, x_values)
+    ssq_poly1 = np.sum((y_poly1 - y_values) ** 2)
+    ssq_poly2 = np.sum((y_poly2 - y_values) ** 2)
+    ssq_poly3 = np.sum((y_poly3 - y_values) ** 2)
+    # fit exp
+    e_a, e_b, e_c = get_coeffs(x_values, y_values)
+    e_c = min(3, e_c)
+    y_exp = e_a + np.exp(e_b * x_values) * e_c
+    ssq_exp = np.sum((y_values - y_exp) ** 2)
+    if ssq_exp < ssq_poly1 and ssq_exp < ssq_poly2 and ssq_exp < ssq_poly3:
+        estimate = e_a + np.exp(e_b * point) * e_c
+    else:
+        estimate = np.polyval([poly_coeffs1, poly_coeffs2, poly_coeffs3][np.argmin([ssq_poly1, ssq_poly2, ssq_poly3])], point)
+    return np.log(estimate)
+
+@atheris.instrument_func
 def runbench(lhs: str, mid: str, rhs: str):
     maxpump = (MAXPOSTLEN - (len(lhs) + len(rhs))) // len(mid)
     if maxpump < 40:
@@ -92,25 +124,7 @@ def runbench(lhs: str, mid: str, rhs: str):
     for pump in x_values:
         string = lhs + mid*pump + rhs
         y_values.append(MONOLITHIC.scanner(string).bench()[-1])
-    # fit lin/quad/cubic
-    poly_coeffs = np.polyfit(x_values, y_values, 3)
-    for i in range(len(poly_coeffs)):
-        if poly_coeffs[i] < 0:
-                poly_coeffs[i] = 0
-        else:
-            break
-    y_poly = np.polyval(poly_coeffs, x_values)
-    ssq_poly = np.sum((y_poly - y_values) ** 2)
-    e_a, e_b, e_c = get_coeffs(x_values, y_values)
-    e_b = min(3, e_b)
-    y_exp = e_a * np.exp(e_b * x_values) + e_c
-    ssq_exp = np.sum((y_poly - y_exp) ** 2)
-    print(ssq_exp, ssq_poly)
-    if ssq_exp < ssq_poly:
-        estimate = e_a * np.exp(e_b * maxpump) + e_c
-    else:
-        estimate = np.polyval(poly_coeffs, maxpump)
-    estimate = np.log(estimate)
+    estimate = get_trend(x_values, y_values, maxpump)
     if estimate >= 32:
         raise ValueError(f'BOOM! <{estimate}> [[[{lhs!r}][{mid!r}][{rhs!r}]]] !BOOM')
     ##for i in reversed(range(1, 1 << (20-13))):
@@ -130,24 +144,24 @@ def runbench(lhs: str, mid: str, rhs: str):
     if estimate >= (21): return estimate
     if estimate >= (20): return estimate
     if estimate >= (19): return estimate
-    elif estimate >= (18): return estimate
-    elif estimate >= (17): return estimate
-    elif estimate >= (16): return estimate
-    elif estimate >= (15): return estimate
-    elif estimate >= (14): return estimate
-    elif estimate >= (13): return estimate
-    elif estimate >= (12): return estimate
-    elif estimate >= (11): return estimate
-    elif estimate >= (10): return estimate
-    elif estimate >= (9): return estimate
-    elif estimate >= (8): return estimate
-    elif estimate >= (7): return estimate
-    elif estimate >= (6): return estimate
-    elif estimate >= (5): return estimate
-    elif estimate >= (4): return estimate
-    elif estimate >= (3): return estimate
-    elif estimate >= (2): return estimate
-    elif estimate >= (1): return estimate
+    if estimate >= (18): return estimate
+    if estimate >= (17): return estimate
+    if estimate >= (16): return estimate
+    if estimate >= (15): return estimate
+    if estimate >= (14): return estimate
+    if estimate >= (13): return estimate
+    if estimate >= (12): return estimate
+    if estimate >= (11): return estimate
+    if estimate >= (10): return estimate
+    if estimate >= (9): return estimate
+    if estimate >= (8): return estimate
+    if estimate >= (7): return estimate
+    if estimate >= (6): return estimate
+    if estimate >= (5): return estimate
+    if estimate >= (4): return estimate
+    if estimate >= (3): return estimate
+    if estimate >= (2): return estimate
+    if estimate >= (1): return estimate
 
 @atheris.instrument_func
 def TestAllWatchedKeywords(data: bytes):

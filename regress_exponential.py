@@ -1,48 +1,32 @@
-# nonlinear exponential regression for y = a*exp(b*x)+c
-# based on the psuedo-code by JJacquelin
-# https://math.stackexchange.com/a/1946510/227162
 import numpy as np
 
 
+def estimate_bc(x, y, a):
+    log_y = np.log(y-a)
+    b, c = np.polyfit(x, log_y, 1)
+    print(b, c)
+    y_pred = np.polyval([b, c], x)
+    c = np.exp(c)
+    print(log_y, y_pred)
+    return np.sum((log_y-y_pred)**2), b, c
+
 def get_coeffs(x, y):
-    """
-    fit x and y, must have x strictly increasing,
-    with y as many (only) numerical entries as x (only numerical entries)
-    """
-    s = [0]
-    for x_k_1, y_k_1, x_k, y_k in zip(x, y, x[1:], y[1:]):
-        s.append(s[-1] + (y_k + y_k_1) / (x_k - x_k_1) / 2)
-    x_k_x_1__2 = 0
-    x_k_x_1_s_k = 0
-    y_k_y_1_x_k_x_1 = 0
-    s_k__2 = 0
-    y_k_y_1_s_k = 0
-    for k in range(1, len(x)):
-        x_k_x_1__2 += (x[k] - x[0]) * (x[k] - x[0])
-        x_k_x_1_s_k += (x[k] - x[0]) * s[k]
-        s_k__2 += s[k] * s[k]
-        y_k_y_1_x_k_x_1 += (y[k] - y[0]) * (x[k] - x[0])
-        y_k_y_1_s_k += (y[k] - y[0]) * s[k]
-    m1 = np.matrix([[x_k_x_1__2, x_k_x_1_s_k], [x_k_x_1_s_k, s_k__2]])
-    try:
-        c = (np.linalg.inv(m1) @ np.array([y_k_y_1_x_k_x_1, y_k_y_1_s_k]))[0,1]
-    except np.linalg.LinAlgError:
-        return np.average(y), 0, 0
-    theta = 0
-    theta__2 = 0
-    y_sum = 0
-    y_theta = 0
-    for k in range(len(x)):
-        theta_k = np.exp(c * x[k])
-        theta += theta_k
-        theta__2 += theta_k * theta_k
-        y_sum += y[k]
-        y_theta += y[k] * theta_k
-    m1 = np.matrix([[len(x), theta], [theta, theta__2]])
-    try:
-        res = np.linalg.inv(m1) @ np.array([y_sum, y_theta])
-        a = res[0,0]
-        b = res[0,1]
-    except np.linalg.LinAlgError:
-        return np.average(y), 0, 0
+    a = 0
+    last_a = int(np.floor(min(9, *y) -1))
+    last_est, b, c = estimate_bc(x, y, last_a)
+    curr_est, b, c = estimate_bc(x, y, a)
+    if curr_est > last_est:
+        curr_est, last_est = last_est, curr_est
+        a, last_a = last_a, a
+    while True:
+        next_a = (a + last_a) // 2
+        if next_a == last_a:
+            break
+        next_est, b, c = estimate_bc(x, y, next_a)
+        if next_est < curr_est:
+            curr_est = next_est
+            last_a = a
+            a = next_a
+        else:
+            last_a = next_a
     return a, b, c
